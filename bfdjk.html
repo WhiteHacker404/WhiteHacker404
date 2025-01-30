@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прогноз погоды</title>
+    
+</head> 
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220%200%2064%2064%22><circle cx=%2232%22 cy=%2232%22 r=%2230%22 fill=%22%23A2D9F3%22/><circle cx=%2242%22 cy=%2224%22 r=%2212%22 fill=%22%23FFD700%22/><ellipse cx=%2232%22 cy=%2236%22 rx=%2220%22 ry=%2210%22 fill=%22%23D3D3D3%22/><ellipse cx=%2222%22 cy=%2236%22 rx=%2214%22 ry=%228%22 fill=%22%23F0F0F0%22/></svg>">
+ 
+<body>
+    <div class="background-container"></div>
+    <style>
+    body {
+        
+        font-family: Arial, sans-serif;
+        background: #f0f0f0;
+        text-align: center;
+        padding: 20px;
+    }
+    body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('https://kartin.papik.pro/uploads/posts/2023-06/thumbs/1686697429_kartin-papik-pro-p-kartinki-krasivie-dozhdya-v-prirode-63.jpg'); /* Убедись в правильности пути */
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+    height: 100%;
+    width: 100%;
+}
+    
+    .weather-container {
+        margin-left: 90px;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        display: inline-block;
+    }
+    
+    h1 {
+        margin-bottom: 20px;
+    }
+    
+    .search-box {
+        margin-bottom: 20px;
+    }
+    
+    #cityInput {
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 200px;
+    }
+    
+    button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    
+    button:hover {
+        background-color: #0056b3;
+    }
+    
+    #weatherDisplay {
+        margin-top: 20px;
+    }
+    
+    .weather-icon {
+        margin-bottom: 10px;
+        
+    }
+    
+    .weather-icon svg {
+        width: 50px;
+        height: 50px;
+    }
+
+    
+    #cityName {
+        font-size: 24px;
+        font-weight: bold;
+    }
+    
+    #temperature {
+        font-size: 18px;
+    }
+    
+    #description {
+        font-size: 16px;
+        color: #000000;
+    }</style>
+    <div4 class="weather-container">
+        <h1>Прогноз погоды</h1>
+        
+        <div3 class="search-box">
+            <input type="text" id="cityInput" placeholder="Введите город"/>
+            <button onclick="getWeather()">Узнать погоду</button>
+        </div3>
+        <div1 id="weatherOutput"></div1>
+        <div2 id="weatherDisplay">
+            <p id="weatherIcon"></p>
+            <h2 id="cityName"></h2>
+            <p id="temperature"></p>
+            <p id="description"></p>
+        
+        </div2>
+        
+    </div4>
+    
+    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="orange"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M17.36 17.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M17.36 6.64l1.42-1.42" stroke="orange" stroke-width="2"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24"><path d="M19 18H6a5 5 0 0 1-1-9.9 7.002 7.002 0 0 1 13.7 1.94 5.002 5.002 0 0 1 .3 7.96z" fill="lightgray"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24"><path d="M19 18H6a5 5 0 0 1-1-9.9 7.002 7.002 0 0 1 13.7 1.94 5.002 5.002 0 0 1 .3 7.96z" fill="lightgray"/><line x1="8" y1="20" x2="8" y2="22" stroke="blue" stroke-width="2"/><line x1="12" y1="20" x2="12" y2="22" stroke="blue" stroke-width="2"/><line x1="16" y1="20" x2="16" y2="22" stroke="blue" stroke-width="2"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24"><path d="M12 17c-1.1 0-2-.9-2-2h-2a4 4 0 1 1 0-8h.71a5 5 0 1 1 8.58 3H19a3 3 0 0 1 0 6H12z" fill="#b0c4de"/><path d="M5 15a2 2 0 0 0 0 4h10a4 4 0 1 0 0-8H8a3 3 0 0 0-3 3v1z" fill="#87ceeb"/></svg>
+    <script>function getWeather() {
+        const city = document.getElementById('cityInput').value;
+        const apiKey = '8f671f67d4a2657c6d1915c966b8db06';
+        const apiUrls = {'Астана':
+          `https://api.openweathermap.org/data/2.5/weather?q=Astana,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+          'Тараз':
+          `https://api.openweathermap.org/data/2.5/weather?q=Taraz,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+          'Алматы':
+          `https://api.openweathermap.org/data/2.5/weather?q=Almaty,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+          'Қызылорда':
+          `https://api.openweathermap.org/data/2.5/weather?q=Kyzylorda,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+          'Ақтау':
+          `https://api.openweathermap.org/data/2.5/weather?q=Aktau,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+          'Қарағанды':
+          `https://api.openweathermap.org/data/2.5/weather?q=Karaganda,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+          'Орал':
+          `https://api.openweathermap.org/data/2.5/weather?q=Oral,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+          'Шымкент':
+          `https://api.openweathermap.org/data/2.5/weather?q=Shymkent,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+          'Ақтөбе':
+          `https://api.openweathermap.org/data/2.5/weather?q=Aktobe,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+          'Павлодар':
+          `https://api.openweathermap.org/data/2.5/weather?q=Pavlodar,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+          'Семей':
+          `https://api.openweathermap.org/data/2.5/weather?q=Semey,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+          'Атырау':
+          `https://api.openweathermap.org/data/2.5/weather?q=Atyrau,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+          'Қостанай':
+          `https://api.openweathermap.org/data/2.5/weather?q=Kostanay,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+          'Өскемен':
+          `https://api.openweathermap.org/data/2.5/weather?q=Ust-Kamenogorsk,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+         'Петропавл':
+         `https://api.openweathermap.org/data/2.5/weather?q=Petropavl,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+         'Талдықорған':
+         `https://api.openweathermap.org/data/2.5/weather?q=Taldykorgan,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+         'Түркістан':
+         `https://api.openweathermap.org/data/2.5/weather?q=Turkistan,kz&limit=5&appid=8f671f67d4a2657c6d1915c966b8db06&units=metric`,
+         }; // Ваши ссылки на API
+      
+        const apiUrl = apiUrls[city];
+      
+        if (!apiUrl) {
+            const output = document.getElementById('weatherOutput');
+            output.innerHTML = 'Город не найден. Пожалуйста, введите правильное название города.';
+            return;
+        }
+      
+        fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Город не найден");
+                }
+                return response.json();
+            })
+            .then(data => {
+                const output = document.getElementById('weatherOutput');
+                const weatherIcon = document.getElementById('weatherIcon');
+                const cityName = document.getElementById('cityName');
+                const temperature = document.getElementById('temperature');
+                const description = document.getElementById('description');
+      
+                // Устанавливаем название города и температуру
+                cityName.innerHTML = data.name;
+                temperature.innerHTML = `Temperature: ${data.main.temp}°C`;
+                description.innerHTML = `Description: ${data.weather[0].description}`;
+      
+                // Подбираем иконку на основе описания погоды
+                const weatherDescription = data.weather[0].main.toLowerCase();
+      
+                let iconSVG = '';
+      
+                if (weatherDescription.includes('clear')) {
+                    // Ясная погода
+                    iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="orange"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M17.36 17.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M17.36 6.64l1.42-1.42" stroke="orange" stroke-width="2"/></svg>`;
+                } else if (weatherDescription.includes('clouds')) {
+                    // Облачно
+                    iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24"><path d="M19 18H6a5 5 0 0 1-1-9.9 7.002 7.002 0 0 1 13.7 1.94 5.002 5.002 0 0 1 .3 7.96z" fill="lightgray"/></svg>`;
+                } else if (weatherDescription.includes('rain')) {
+                    // Дождь
+                    iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24"><path d="M19 18H6a5 5 0 0 1-1-9.9 7.002 7.002 0 0 1 13.7 1.94 5.002 5.002 0 0 1 .3 7.96z" fill="lightgray"/><line x1="8" y1="20" x2="8" y2="22" stroke="blue" stroke-width="2"/><line x1="12" y1="20" x2="12" y2="22" stroke="blue" stroke-width="2"/><line x1="16" y1="20" x2="16" y2="22" stroke="blue" stroke-width="2"/></svg>`;
+                } else if (weatherDescription.includes('clouds') && weatherDescription.includes('scattered')){
+                    iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24"><path d="M12 17c-1.1 0-2-.9-2-2h-2a4 4 0 1 1 0-8h.71a5 5 0 1 1 8.58 3H19a3 3 0 0 1 0 6H12z" fill="#b0c4de"/><path d="M5 15a2 2 0 0 0 0 4h10a4 4 0 1 0 0-8H8a3 3 0 0 0-3 3v1z" fill="#87ceeb"/></svg>`;
+                }
+      
+                // Добавляем иконку на страницу
+                weatherIcon.innerHTML = iconSVG;
+            })
+            .catch(error => console.error(error));
+      }</script>
+</body>
+</html>
